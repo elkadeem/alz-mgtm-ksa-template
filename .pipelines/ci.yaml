@@ -1,0 +1,14 @@
+---
+trigger:
+  - none
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: <AZURE_DEVOPS_PROJECT>/<PIPELINE_TEMPLATE_REPOSITORY>
+
+lockBehavior: sequential
+
+extends:
+  template: .pipelines/ci-template.yaml@templates
