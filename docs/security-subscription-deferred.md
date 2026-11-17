@@ -65,3 +65,11 @@ No other files were changed. The management group's policy configuration
 5. Consider whether Microsoft Sentinel should also be re-enabled at the same time — see
    [security-service-region-limitations.md](./security-service-region-limitations.md) (Sentinel
    is currently off for a separate reason: it isn't available in `saudiarabiaeast` yet).
+
+## Addendum (2026-11-17): same conflict pattern in the bootstrap config
+
+[config/inputs.yaml](../config/inputs.yaml)'s `subscription_ids.security` had the identical
+duplicate-of-Management-ID pattern described above (not fixed by the original change, which
+predates `config/` being added to this repo). It has now been blanked to `""`, consistent with
+this decision. See [accelerator-local-bootstrap.md](accelerator-local-bootstrap.md) for the
+full set of `config/inputs.yaml` consistency fixes.

@@ -19,6 +19,17 @@ The shared pipeline-template repository is **not included**. Both pipeline YAML 
 `<AZURE_DEVOPS_PROJECT>/<PIPELINE_TEMPLATE_REPOSITORY>` until configured by the recipient.
 No live Azure deployment was performed as part of preparing this shareable copy.
 
+## Advanced: Local Bootstrap via `Deploy-Accelerator`
+
+- [Advanced Option: Local Bootstrap via Deploy-Accelerator](docs/accelerator-local-bootstrap.md) -
+  step-by-step for the manual/advanced ALZ Accelerator bootstrap path (`config/inputs.yaml` and
+  `config/platform-landing-zone.yaml`, PAT environment variables, `Deploy-Accelerator`), as an
+  alternative to the interactive wizard. `config/inputs.yaml` was unified with this repo's
+  established conventions (correct Azure DevOps bootstrap schema, Security subscription
+  deferred, no committed PATs) but still has **real** subscription IDs and Azure DevOps
+  org/project values — see that doc's warning before running anything; it is `.gitignore`d
+  pending a decision on sanitizing it for the public template vs. keeping it for real use.
+
 ## Open Discussion Items (Not Implemented)
 
 - [User-Assigned Managed Identity for Policy Assignments](docs/policy-assignment-user-assigned-identity-option.md) —

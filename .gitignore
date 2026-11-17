@@ -1,0 +1,5 @@
+# Local-only: contains real subscription IDs and the real Azure DevOps organization/project
+# name used for actual bootstrap execution. This repository is shared as a public template
+# (see docs/sharing-and-placeholders.md) - do not commit this file with real identifiers.
+# Replace its contents with placeholders before removing this ignore rule.
+config/inputs.yaml
