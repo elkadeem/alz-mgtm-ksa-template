@@ -16,8 +16,6 @@ param parManagementGroupExcludedPolicyAssignments = [
   'Deploy-vmArc-ChangeTrack'
   'Deploy-vmHybr-Monitoring'
   'Deploy-MDFC-DefSQL-AMA'
-  // Keep in sync with platform/platform-connectivity/main.bicepparam's identity exclusion.
-  'Enable-DDoS-VNET'
 ]
 // REGION LIMITATION (2026-11-17): disabled because the AVM module's standard telemetry
 // resource (Microsoft.Resources/deployments) is explicitly created with location = parLocations[0],

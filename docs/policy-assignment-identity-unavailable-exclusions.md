@@ -1,8 +1,14 @@
-# Policy Assignment Identity-Unavailable Exclusions (Saudi Arabia East)
+# Historical Policy Assignment Identity-Unavailable Exclusions (Saudi Arabia East)
 
 ## Status
 
-**Temporary — excluded** since 2026-11-17, applied to 64 policy assignments across 6
+**Superseded on 2026-11-17:** all 66 identity-only deferrals are now restored as
+`DoNotEnforce` with selected `uaenorth` assignment-location overrides, pending operator testing.
+See [the current configuration and test procedure](policy-assignment-alternate-region.md).
+Logging/security exclusions remain. Everything below records the earlier decision, not
+the current configuration or restoration instructions.
+
+**Historical state — excluded** since 2026-11-17, applied to 64 policy assignments across 6
 management groups: `landingzones` (32), `landingzones-corp` (1), `platform` (28),
 `platform-connectivity` (1), `platform-identity` (1), `decommissioned` (1).
 
@@ -141,7 +147,7 @@ successful template validation does not check whether that assignment exists.
 These parameters use the templates' existing exclusion guards to skip both the policy
 identity lookup and its dependent role assignments. No pipeline stages need to be disabled.
 
-## Re-enabling later
+## Historical re-enablement plan (superseded)
 
 Once regional policy identity creation is verified in the target environment, review the
 64 entries above plus root's two. Restore assignments only after all their service/resource

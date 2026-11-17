@@ -1,7 +1,7 @@
 using './main.bicep'
 
 // General Parameters
-// SINGLE-REGION DEPLOYMENT (2026-11-16): only saudiarabiaeast is deployed to.
+// Workload region remains saudiarabiaeast; selected policy identities use uaenorth.
 param parLocations = [
   'saudiarabiaeast'
 ]
@@ -22,16 +22,10 @@ param platformConnectivityConfig = {
   managementGroupDisplayName: 'Connectivity'
   // TEMP AUDIT-ONLY (2026-11-16): set to DoNotEnforce for the initial Saudi Arabia East
   // rollout. Re-enforce once validated — see docs/policy-audit-only-rollout.md.
-  managementGroupDoNotEnforcePolicyAssignments: []
-  // TEMP EXCLUDED (2026-11-17): Enable-DDoS-VNET uses a system-assigned managed identity, and
-  // Microsoft Entra regional resource identity hosting does not support 'saudiarabiaeast' yet,
-  // so its creation fails with IdentityServiceUnavailable. It did not exist in Azure prior to
-  // this change, so excluding it avoids a future delete/recreate migration once the region is
-  // supported — simply remove this entry once Entra confirms regional identity hosting for
-  // 'saudiarabiaeast'. See docs/policy-assignment-identity-unavailable-exclusions.md.
-  managementGroupExcludedPolicyAssignments: [
+  managementGroupDoNotEnforcePolicyAssignments: [
     'Enable-DDoS-VNET'
   ]
+  managementGroupExcludedPolicyAssignments: []
   customerRbacRoleDefs: []
   customerRbacRoleAssignments: []
   customerPolicyDefs: []
@@ -49,6 +43,7 @@ param platformConnectivityConfig = {
 // Only specify the parameters you want to override - others will use defaults from JSON files
 param parPolicyAssignmentParameterOverrides = {
   'Enable-DDoS-VNET': {
+    location: 'uaenorth'
     parameters: {
       ddosPlan: {
         value: '/subscriptions/22222222-2222-2222-2222-222222222222/resourceGroups/rg-alz-conn-${parLocations[0]}/providers/Microsoft.Network/ddosProtectionPlans/ddos-alz-${parLocations[0]}'

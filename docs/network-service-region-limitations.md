@@ -82,11 +82,11 @@ The `Enable-DDoS-VNET` policy assignment (in
 and
 [platform/platform-connectivity/main.bicepparam](../templates/core/governance/mgmt-groups/platform/platform-connectivity/main.bicepparam))
 still has a parameter override pointing at the planned DDoS protection plan resource ID.
-It was initially left in DoNotEnforce, but the **final configuration excludes it in both
-groups** for regional policy identity creation, along with its cross-MG RBAC lookups.
-It therefore provides no evaluation from these assignments while excluded. Before restoring
-it, resolve both identity availability and the absent DDoS plan; update the resource ID as
-needed. See [identity exclusions](policy-assignment-identity-unavailable-exclusions.md).
+It is now restored in **DoNotEnforce in both groups**, with selected `uaenorth` assignment
+locations and dependent cross-MG RBAC restored, pending operator testing. The planned DDoS
+plan is still absent, so dependency-related noncompliance is expected. Do not enforce the
+policy or run remediation until an approved DDoS plan exists and the resource ID is updated.
+See [alternate-region policy identities](policy-assignment-alternate-region.md).
 
 ## Re-enabling a service
 

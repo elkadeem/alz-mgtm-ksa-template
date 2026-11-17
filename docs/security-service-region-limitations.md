@@ -54,8 +54,9 @@ Defender for Endpoint) doesn't exist in this region at all, not merely unenforce
 
 `Enforce-ACSB` (Azure Compute Security Baseline) and `Deploy-SQL-TDE` (Transparent Data
 Encryption) were **not excluded by this security-service decision**; neither is equivalent
-to Defender/Sentinel. Both are nevertheless excluded in the final configuration by the
-separate [policy identity decision](policy-assignment-identity-unavailable-exclusions.md).
+to Defender/Sentinel. Both are now restored as DoNotEnforce with selected `uaenorth`
+assignment locations under the separate
+[policy identity decision](policy-assignment-alternate-region.md), pending operator testing.
 
 ## Changes made
 

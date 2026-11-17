@@ -1,7 +1,7 @@
 using './main.bicep'
 
 // General Parameters
-// SINGLE-REGION DEPLOYMENT (2026-11-16): only saudiarabiaeast is deployed to.
+// Workload region remains saudiarabiaeast; selected policy identities use uaenorth.
 param parLocations = [
   'saudiarabiaeast'
 ]
@@ -20,7 +20,7 @@ param platformConfig = {
   managementGroupParentId: 'alz'
   managementGroupIntermediateRootName: 'alz'
   managementGroupDisplayName: 'Platform'
-  // TEMP AUDIT-ONLY (2026-11-16): remaining 4 policy assignments in this MG set to
+  // TEMP AUDIT-ONLY (2026-11-17): 32 policy assignments in this MG set to
   // DoNotEnforce for the initial Saudi Arabia East rollout (Deny/Modify/DeployIfNotExists
   // effects do not block or auto-remediate, but compliance is still evaluated/visible).
   // Re-enforce once validated — see docs/policy-audit-only-rollout.md.
@@ -29,31 +29,6 @@ param platformConfig = {
     'Enforce-ASR'
     'Enforce-GR-KeyVault'
     'Enforce-Subnet-Private'
-  ]
-  // TEMP DISABLED (2026-11-16): Core-Logging is off because Log Analytics is not available
-  // in Saudi Arabia East yet. These assignments reference the logging workspace, DCRs, or
-  // the logging managed identity. Remove these 7 entries once Core-Logging is re-enabled.
-  // Also TEMP DISABLED (2026-11-16): Microsoft Defender for Cloud is not available in Saudi
-  // Arabia East either. Deploy-GuestAttest exists solely to feed Azure Security Center/
-  // Defender for Cloud attestation data, so it is excluded too — see
-  // docs/security-service-region-limitations.md.
-  // Also TEMP EXCLUDED (2026-11-17): the remaining 28 policy assignments below all use a
-  // system-assigned managed identity, and Microsoft Entra regional resource identity hosting
-  // does not support 'saudiarabiaeast' yet, so their creation fails with
-  // IdentityServiceUnavailable. None of these existed in Azure prior to this change (verified),
-  // so excluding them (rather than overriding the identity location to another region) avoids
-  // a future delete/recreate migration once the region is supported — simply remove these
-  // entries once Entra confirms regional identity hosting for 'saudiarabiaeast'. See
-  // docs/policy-assignment-identity-unavailable-exclusions.md.
-  managementGroupExcludedPolicyAssignments: [
-    'Deploy-VM-ChangeTrack'
-    'Deploy-VM-Monitoring'
-    'Deploy-VMSS-ChangeTrack'
-    'Deploy-VMSS-Monitoring'
-    'Deploy-vmArc-ChangeTrack'
-    'Deploy-vmHybr-Monitoring'
-    'Deploy-MDFC-DefSQL-AMA'
-    'Deploy-GuestAttest'
     'Enable-AUM-CheckUpdates'
     'Enforce-Encrypt-CMK0'
     'Enforce-GR-APIM0'
@@ -83,6 +58,23 @@ param platformConfig = {
     'Enforce-GR-Synapse0'
     'Enforce-GR-VirtualDesk0'
   ]
+  // TEMP DISABLED (2026-11-16): Core-Logging is off because Log Analytics is not available
+  // in Saudi Arabia East yet. These assignments reference the logging workspace, DCRs, or
+  // the logging managed identity. Remove these 7 entries once Core-Logging is re-enabled.
+  // Also TEMP DISABLED (2026-11-16): Microsoft Defender for Cloud is not available in Saudi
+  // Arabia East either. Deploy-GuestAttest exists solely to feed Azure Security Center/
+  // Defender for Cloud attestation data, so it is excluded too — see
+  // docs/security-service-region-limitations.md.
+  managementGroupExcludedPolicyAssignments: [
+    'Deploy-VM-ChangeTrack'
+    'Deploy-VM-Monitoring'
+    'Deploy-VMSS-ChangeTrack'
+    'Deploy-VMSS-Monitoring'
+    'Deploy-vmArc-ChangeTrack'
+    'Deploy-vmHybr-Monitoring'
+    'Deploy-MDFC-DefSQL-AMA'
+    'Deploy-GuestAttest'
+  ]
   customerRbacRoleDefs: []
   customerRbacRoleAssignments: []
   customerPolicyDefs: []
@@ -99,6 +91,91 @@ param platformConfig = {
 
 // Only specify the parameters you want to override - others will use defaults from JSON files
 param parPolicyAssignmentParameterOverrides = {
+  // Identity-only location overrides; workload parameters remain in saudiarabiaeast.
+  'Enable-AUM-CheckUpdates': {
+    location: 'uaenorth'
+  }
+  'Enforce-Encrypt-CMK0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-APIM0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-AppServices0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-Automation0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-BotService0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-CogServ0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-Compute0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-ContApps0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-ContInst0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-ContReg0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-CosmosDb0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-DataExpl0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-DataFactory0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-EventGrid0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-EventHub0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-KeyVaultSup0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-Kubernetes0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-MachLearn0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-MySQL0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-Network0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-OpenAI0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-PostgreSQL0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-ServiceBus0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-SQL0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-Storage0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-Synapse0': {
+    location: 'uaenorth'
+  }
+  'Enforce-GR-VirtualDesk0': {
+    location: 'uaenorth'
+  }
   'Deploy-VM-ChangeTrack': {
     parameters: {
       dcrResourceId: {

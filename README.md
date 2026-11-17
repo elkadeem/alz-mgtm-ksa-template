@@ -22,8 +22,7 @@ No live Azure deployment was performed as part of preparing this shareable copy.
 ## Open Discussion Items (Not Implemented)
 
 - [User-Assigned Managed Identity for Policy Assignments](docs/policy-assignment-user-assigned-identity-option.md) —
-  a candidate alternative to the policy identity exclusions below,
-  that could avoid both the future delete/recreate migration and the compliance coverage loss.
+  a candidate alternative to the selected off-region system-assigned identities below.
   Needs team discussion on identity placement and RBAC role-assignment design, plus test
   validation, before any assignment is converted.
 
@@ -36,10 +35,10 @@ No live Azure deployment was performed as part of preparing this shareable copy.
 ## Architecture Decisions
 
 - [Single-Region Deployment (Saudi Arabia East)](docs/single-region-deployment.md) — this
-  environment deploys to `saudiarabiaeast` only; the leftover second-region/second-hub
-  configuration was removed from the networking and governance parameter files.
+  workload resources remain in `saudiarabiaeast`; selected policy identities use `uaenorth`.
+  The leftover second-region/second-hub configuration was removed.
 - [Policy Audit-Only Rollout](docs/policy-audit-only-rollout.md) — of 123 declared assignment
-  occurrences, 30 remain configured as `DoNotEnforce` and 93 are excluded after the regional
+  occurrences, 96 are configured as `DoNotEnforce` and 27 are excluded after the regional
   workarounds. Excluded assignments provide no compliance evaluation.
 - [Network Service Region Limitations](docs/network-service-region-limitations.md) — Azure
   Firewall, Azure Bastion, Azure DDoS Protection, and ExpressRoute Gateway are disabled in the
@@ -55,20 +54,13 @@ No live Azure deployment was performed as part of preparing this shareable copy.
 
 ## Pipeline / CI-CD Infrastructure Notes
 
-- **Two root policy assignments deferred:** `Deploy-SvcHealth-BuiltIn` and `Enforce-ACSB`
-  are excluded in
-  [int-root/main.bicepparam](templates/core/governance/mgmt-groups/int-root/main.bicepparam).
-  Their managed identity creation failed in `saudiarabiaeast`; no location overrides are
-  applied. Remove these two exclusions to resume deployment once identity hosting is
-  supported. Existing assignments are not removed by this file edit; check the deployment
-  stack's action-on-unmanage setting before deploying. Their compliance checks are deferred
-  if the assignments are removed; all other assignment settings remain unchanged.
-- [Policy Assignment Identity-Unavailable Exclusions](docs/policy-assignment-identity-unavailable-exclusions.md) —
-  64 further policy assignments across 6 management groups (`landingzones`,
-  `landingzones-corp`, `platform`, `platform-connectivity`, `platform-identity`,
-  `decommissioned`) are excluded for the same `IdentityServiceUnavailable` reason as above.
-  Unlike the two root assignments, none of these existed in Azure yet, so they are excluded
-  (not location-overridden) to avoid a guaranteed future delete/recreate migration.
+- [Policy Assignment Identities in UAE North](docs/policy-assignment-alternate-region.md) -
+  66 identity-deferred occurrences across 7 management groups, including root's
+  `Deploy-SvcHealth-BuiltIn` and `Enforce-ACSB`, are restored as `DoNotEnforce` using
+  selected `uaenorth` assignment locations. Workload locations and logging/security
+  exclusions are unchanged. **Pending operator deployment/testing.** Inventory existing
+  locations first: assignment locations are immutable. See the linked test and rollback
+  procedure; the earlier broad override must not be repeated.
 - [Pipeline Service Connection RBAC Fix](docs/pipeline-service-connection-rbac-fix.md) — the CD
   pipeline's service connections lacked subscription-read access due to a misassigned built-in
   role; Owner was granted directly on the 3 active platform subscriptions since they aren't yet

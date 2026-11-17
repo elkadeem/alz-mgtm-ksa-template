@@ -9,12 +9,11 @@ any assignment is converted.
 
 ## Context
 
-The final configuration uses
-[Policy Assignment Identity-Unavailable Exclusions](./policy-assignment-identity-unavailable-exclusions.md):
-root's 2 assignments plus 64 additional occurrences across 6 groups are excluded.
-An earlier policy `uaenorth` location override was reverted; it is **not an active fix**.
-Existing off-region assignments, if still present in Azure, require a separate inventory
-and stack-lifecycle review.
+The current configuration restores root's 2 assignments plus 64 additional occurrences
+using [selected UAE North system-assigned identities](policy-assignment-alternate-region.md),
+pending operator testing. Logging/security exclusions remain. The earlier broad override
+was reverted; the current approach overrides only these 66 identity-bearing occurrences.
+Existing assignment locations require inventory and lifecycle review before deployment.
 
 The exclusions address the recorded constraint: **`identity.type: SystemAssigned`
 requires Entra to host a brand-new regional identity at the assignment's `location`**, and that
@@ -80,9 +79,10 @@ use for `DeployIfNotExists`/`Modify` assignments that currently rely on the auto
   relying on it.
 - **Identity lifecycle/ownership** — who creates, rotates, and manages the UAMI(s) going
   forward, and where does that Bicep/pipeline step live?
-- **Migration path for the 66 identity-deferred occurrences** — if this option is adopted,
-  which exclusions would be removed, which service/logging blockers would remain, and how
-  would any already-created root assignments be migrated after checking their live location?
+- **Migration path for the 66 off-region occurrences** - if this option is adopted, assess
+  identity conversion, immutable assignment locations, required RBAC, and which remaining
+  service/logging exclusions must stay. Do not assume switching identity type moves an
+  existing assignment back in-region without recreation.
 
 ## Recommendation
 

@@ -2,8 +2,10 @@
 
 ## Status
 
-**Enforced single-region** as of 2026-11-16. This environment deploys to `saudiarabiaeast`
-only — no secondary/DR region.
+**Single workload region** as of 2026-11-16: `saudiarabiaeast`, with no secondary/DR region.
+As of 2026-11-17, [66 selected policy identities](policy-assignment-alternate-region.md)
+are configured in `uaenorth`, pending operator testing. Deployment Stack metadata also
+uses `uaenorth`. These are explicit exceptions, not a second workload region.
 
 ## Context
 
@@ -21,7 +23,7 @@ region/hub entirely rather than patch it with a placeholder value.
 
 ## Decision
 
-Deploy to a single region (`saudiarabiaeast`) everywhere in this repository. Remove the second
+Deploy workload resources to a single region (`saudiarabiaeast`). Remove the second
 hub/VWAN hub and VNet peering, and trim every `parLocations` array down to one entry.
 
 ## Changes made

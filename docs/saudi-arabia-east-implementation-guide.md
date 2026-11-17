@@ -49,12 +49,12 @@ placement.
 | Stack tracking location | `parameters.json` `LOCATION = uaenorth`; distinct from resource placement |
 | Secondary region | None; second hubs and their inter-hub peering removed |
 | Platform subscriptions | Management, Connectivity, Identity; Security deferred |
-| Policy posture | 30 configured assignment occurrences in `DoNotEnforce`; 93 excluded |
+| Policy posture | 96 configured assignment occurrences in `DoNotEnforce`; 27 excluded; 66 selected identities in `uaenorth`, pending operator testing |
 | Logging/security | Core-Logging step off, no Sentinel onboarding, related policy exclusions |
 | Telemetry | AVM usage telemetry off in all 18 parameter files |
 
 Single-region means **regional workload/resource placement**, not all metadata remaining
-within Saudi Arabia. Deployment-stack metadata is deliberately hosted in UAE North; Private
+within Saudi Arabia. Deployment-stack metadata and selected policy identities use UAE North; Private
 DNS zones and management groups are global resources. This is not a data-residency
 certification. Approve metadata placement and external control-plane dependencies explicitly.
 
@@ -73,7 +73,7 @@ certification. Approve metadata placement and external control-plane dependencie
 | Correct pipeline permissions | Historical direct Azure RBAC change; not encoded here | Service-connection principals could authenticate but lacked subscription read | Resolve principal object IDs; approve least-privilege roles rather than blindly repeating Owner |
 | Relocate stack metadata | Root `LOCATION = uaenorth`, resource locations unchanged | `NoRegisteredProviderFound` for deploymentStacks despite provider metadata advertising the region | Stale front-end/cache explanation is a hypothesis; external templates must be inspected before reuse |
 | Disable AVM telemetry | `parEnableTelemetry = false` in all 18 parameter files | `LocationNotAvailableForDeployment` for telemetry deployment resources | Does not turn off application monitoring; logging deferral is a separate change |
-| Defer identity-bearing policy assignments | Root two plus 64 additional exclusions; synchronize cross-MG RBAC | `IdentityServiceUnavailable` for policy assignment identities | Avoid new off-region policy identity placement, but lose policy coverage until restoration |
+| Relocate selected policy identities | Restore 66 identity-only deferrals as DoNotEnforce with `uaenorth` overrides; synchronize cross-MG RBAC | Recorded `IdentityServiceUnavailable` in Saudi Arabia East | Pending operator test; approve off-region identity placement and inventory immutable locations before deployment |
 
 Detailed decision records:
 [single region](single-region-deployment.md),
@@ -85,7 +85,7 @@ Detailed decision records:
 [pipeline RBAC](pipeline-service-connection-rbac-fix.md),
 [stack metadata](deployment-stack-location-workaround.md),
 [AVM telemetry](avm-telemetry-disabled.md),
-[identity exclusions](policy-assignment-identity-unavailable-exclusions.md).
+[alternate-region policy identities](policy-assignment-alternate-region.md).
 
 ## 4. File-level implementation
 
@@ -162,25 +162,22 @@ For sharing, the bundled `Deploy-Custom-Route-Table` definition's Network Contri
 role reference was made subscription-neutral by removing a hardcoded subscription prefix.
 The built-in role GUID and permissions were preserved; no policy effect was changed.
 
-The root `Deploy-SvcHealth-BuiltIn` and `Enforce-ACSB` are now excluded. An earlier broad
-`uaenorth` policy-location override was reverted after `InvalidLocationUpdate`; there is
-**no active policy-assignment location override** in the final parameter configuration.
-Existing off-region assignments, if any, need live inventory and stack action-on-unmanage
-review before removal. A file exclusion alone does not prove Azure deleted a resource.
+The root `Deploy-SvcHealth-BuiltIn` and `Enforce-ACSB`, plus Landing Zones 32, Corp 1,
+Platform 28, Connectivity 1, Identity 1, and Decommissioned 1, are restored as
+**66 DoNotEnforce occurrences with selected `uaenorth` assignment locations**, pending
+operator testing. Workload parameters remain in Saudi Arabia East. The earlier broad
+override failed with `InvalidLocationUpdate`; this change does not override other assignments.
+Inventory live locations before deployment; existing assignments cannot change location
+in place. Returning these identities in-region is optional and requires planned recreation
+and RBAC updates. See the [test/rollback procedure](policy-assignment-alternate-region.md).
 
-Additional identity exclusions: Landing Zones 32, Corp 1, Platform 28, Connectivity 1,
-Identity 1, Decommissioned 1 = **64**. Together with root's two these are **66 deferrals
-specifically added for identity availability**. Logging/security exclusions also include
-identity-bearing policies; these reason categories overlap and must not be blindly summed
-as unique policy names.
+Cross-management-group RBAC follows the source assignment configuration:
 
-Cross-management-group RBAC must not resolve identities for excluded source policies:
-
-| RBAC parameter file | Source assignment dependency to skip |
+| RBAC parameter file | Current source assignment handling |
 |---|---|
-| [Platform RBAC](../templates/core/governance/mgmt-groups/platform/main-rbac.bicepparam) | Connectivity `Enable-DDoS-VNET` |
-| [Landing Zones RBAC](../templates/core/governance/mgmt-groups/landingzones/main-rbac.bicepparam) | Platform's seven logging-related assignments; Connectivity `Enable-DDoS-VNET` |
-| [Connectivity RBAC](../templates/core/governance/mgmt-groups/platform/platform-connectivity/main-rbac.bicepparam) | Corp `Deploy-Private-DNS-Zones` |
+| [Platform RBAC](../templates/core/governance/mgmt-groups/platform/main-rbac.bicepparam) | Restore Connectivity `Enable-DDoS-VNET` lookup/grants |
+| [Landing Zones RBAC](../templates/core/governance/mgmt-groups/landingzones/main-rbac.bicepparam) | Skip Platform's seven logging-related assignments; restore Connectivity `Enable-DDoS-VNET` |
+| [Connectivity RBAC](../templates/core/governance/mgmt-groups/platform/platform-connectivity/main-rbac.bicepparam) | Restore Corp `Deploy-Private-DNS-Zones` lookup/grants |
 
 The seven Platform names are `Deploy-VM-ChangeTrack`, `Deploy-VM-Monitoring`,
 `Deploy-VMSS-ChangeTrack`, `Deploy-VMSS-Monitoring`, `Deploy-vmArc-ChangeTrack`,
@@ -195,24 +192,24 @@ There are **123 declared occurrences / 80 unique names**, not 123 active assignm
 
 | Management-group folder | Declared | DoNotEnforce | Excluded (declared only) |
 |---|---:|---:|---:|
-| int-root | 17 | 6 | 11 |
-| landingzones | 53 | 11 | 42 |
-| landingzones-corp | 5 | 4 | 1 |
+| int-root | 17 | 8 | 9 |
+| landingzones | 53 | 43 | 10 |
+| landingzones-corp | 5 | 5 | 0 |
 | landingzones-local | 1 | 1 | 0 |
 | landingzones-online | 0 | 0 | 0 |
-| platform | 40 | 4 | 36 |
-| platform-connectivity | 1 | 0 | 1 |
-| platform-identity | 4 | 3 | 1 |
+| platform | 40 | 32 | 8 |
+| platform-connectivity | 1 | 1 | 0 |
+| platform-identity | 4 | 4 | 0 |
 | platform-management | 0 | 0 | 0 |
 | platform-security | 0 | 0 | 0 |
-| decommissioned | 1 | 0 | 1 |
+| decommissioned | 1 | 1 | 0 |
 | sandbox | 1 | 1 | 0 |
-| **Total** | **123** | **30** | **93** |
+| **Total** | **123** | **96** | **27** |
 
 Every declared assignment is in exactly one of the two lists; no declared assignment is left
-enforced by default in this configuration. Root has **12 exclusion entries**, of which
+enforced by default in this configuration. Root has **10 exclusion entries**, of which
 `Deploy-AzSqlDb-Auditing` is a historical no-op: root does not load that assignment. Thus
-there are 94 textual exclusion entries but only 93 excluded declared occurrences.
+there are 28 textual exclusion entries but only 27 excluded declared occurrences.
 Keep this distinction when reproducing/checking counts; do not add no-op entries to a fresh
 template just to match a number.
 
@@ -323,7 +320,8 @@ evidence when reproducing the recorded configuration.
 
 ## 10. Shareable-copy validation evidence
 
-Local validation on 2026-11-17 used Azure CLI `2.93.0`, Bicep CLI `0.49.2`,
+Earlier shareable-copy validation on 2026-11-17, before the alternate-region identity change,
+used Azure CLI `2.93.0`, Bicep CLI `0.49.2`,
 Python `3.14.7`, and an isolated PyYAML `6.0.3` parser:
 
 - All **19 Bicep templates and 18 parameter files compiled successfully**. The root
@@ -347,3 +345,12 @@ Python `3.14.7`, and an isolated PyYAML `6.0.3` parser:
 No Azure deployment, availability recheck, IAM mutation, subscription move, pipeline
 execution, or external-template validation was performed for this shareable handover.
 The placeholder-bearing copy must not be deployed unchanged.
+
+After the alternate-region identity change, all **10 changed parameter files compiled**
+with Bicep `0.49.2` using `--no-restore`. Static assertions verified the current 123/96/27
+policy partition, exactly 66 SystemAssigned restorations with matching `uaenorth` overrides,
+unchanged existing workload parameters/resource IDs and Saudi-only `parLocations`, and
+the updated three cross-MG RBAC exclusion sets. `git diff --check` passed.
+Compilation emitted 30 warnings (10 each of `use-recent-module-versions`,
+`use-recent-api-versions`, and `BCP318`). Azure deployment and compliance evaluation
+remain operator tests, not verified outcomes.

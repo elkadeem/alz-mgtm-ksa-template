@@ -79,7 +79,7 @@ fully disable logging for now, not relocate it.
 ## Re-enabling Core-Logging
 
 The steps below reverse this decision's changes only. The final configuration also has
-Defender and policy-identity exclusions. Restore an assignment/RBAC lookup only after all
+Defender exclusions and selected off-region policy identities. Restore an assignment/RBAC lookup only after all
 its blockers have been resolved, deploy referenced resources first, and use DoNotEnforce
 for an approved validation period. Do not clear the final exclusion lists wholesale.
 The preserved logging parameters also keep `parDeployAutomationAccount = false`;

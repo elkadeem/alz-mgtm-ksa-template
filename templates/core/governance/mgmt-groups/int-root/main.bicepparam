@@ -1,7 +1,7 @@
 using './main.bicep'
 
 // General Parameters
-// SINGLE-REGION DEPLOYMENT (2026-11-16): only saudiarabiaeast is deployed to.
+// Workload region remains saudiarabiaeast; selected policy identities use uaenorth.
 param parLocations = [
   'saudiarabiaeast'
 ]
@@ -19,7 +19,7 @@ param intRootConfig = {
   managementGroupName: 'alz'
   managementGroupParentId: ''
   managementGroupDisplayName: 'Azure Landing Zones'
-  // TEMP AUDIT-ONLY (2026-11-16): remaining 6 policy assignments in this MG set to
+  // TEMP AUDIT-ONLY (2026-11-17): 8 policy assignments in this MG set to
   // DoNotEnforce for the initial Saudi Arabia East rollout (Deny/Modify/DeployIfNotExists
   // effects do not block or auto-remediate, but compliance is still evaluated/visible).
   // Re-enforce once validated — see docs/policy-audit-only-rollout.md.
@@ -30,6 +30,8 @@ param intRootConfig = {
     'Audit-ZoneResiliency'
     'Deny-Classic-Resources'
     'Deny-UnmanagedDisk'
+    'Deploy-SvcHealth-BuiltIn'
+    'Enforce-ACSB'
   ]
   // TEMP DISABLED (2026-11-16): Core-Logging is off because Log Analytics is not available
   // in Saudi Arabia East yet. These assignments reference the logging workspace/DCRs and
@@ -39,8 +41,6 @@ param intRootConfig = {
   // security services list. These 6 assignments configure or depend on those products and
   // are excluded until they become available — see
   // docs/security-service-region-limitations.md.
-  // Also defer these 2 assignments because managed identity creation failed in
-  // saudiarabiaeast: Deploy-SvcHealth-BuiltIn and Enforce-ACSB.
   managementGroupExcludedPolicyAssignments: [
     'Deploy-MDFC-Config-H224'
     'Deploy-AzActivity-Log'
@@ -52,8 +52,6 @@ param intRootConfig = {
     'Deploy-MDEndpointsAMA'
     'Deploy-MDFC-OssDb'
     'Deploy-MDFC-SqlAtp'
-    'Deploy-SvcHealth-BuiltIn'
-    'Enforce-ACSB'
   ]
   customerRbacRoleDefs: []
   customerRbacRoleAssignments: []
@@ -71,6 +69,10 @@ param intRootConfig = {
 
 // Only specify the parameters you want to override - others will use defaults from JSON files
 param parPolicyAssignmentParameterOverrides = {
+  // Identity-only location overrides; workload parameters remain in saudiarabiaeast.
+  'Enforce-ACSB': {
+    location: 'uaenorth'
+  }
   'Deploy-MDFC-Config-H224': {
     parameters: {
       logAnalytics: {
@@ -105,6 +107,7 @@ param parPolicyAssignmentParameterOverrides = {
     }
   }
   'Deploy-SvcHealth-BuiltIn': {
+    location: 'uaenorth'
     parameters: {
       resourceGroupLocation: {
         value: parLocations[0]

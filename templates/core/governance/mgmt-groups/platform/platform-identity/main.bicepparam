@@ -1,7 +1,7 @@
 using './main.bicep'
 
 // General Parameters
-// SINGLE-REGION DEPLOYMENT (2026-11-16): only saudiarabiaeast is deployed to.
+// Workload region remains saudiarabiaeast; selected policy identities use uaenorth.
 param parLocations = [
   'saudiarabiaeast'
 ]
@@ -26,16 +26,9 @@ param platformIdentityConfig = {
     'Deny-MgmtPorts-Internet'
     'Deny-Public-IP'
     'Deny-Subnet-Without-Nsg'
-  ]
-  // TEMP EXCLUDED (2026-11-17): Deploy-VM-Backup uses a system-assigned managed identity, and
-  // Microsoft Entra regional resource identity hosting does not support 'saudiarabiaeast' yet,
-  // so its creation fails with IdentityServiceUnavailable. It did not exist in Azure prior to
-  // this change, so excluding it avoids a future delete/recreate migration once the region is
-  // supported — simply remove this entry once Entra confirms regional identity hosting for
-  // 'saudiarabiaeast'. See docs/policy-assignment-identity-unavailable-exclusions.md.
-  managementGroupExcludedPolicyAssignments: [
     'Deploy-VM-Backup'
   ]
+  managementGroupExcludedPolicyAssignments: []
   customerRbacRoleDefs: []
   customerRbacRoleAssignments: []
   customerPolicyDefs: []
@@ -52,5 +45,7 @@ param platformIdentityConfig = {
 
 // Only specify the parameters you want to override - others will use defaults from JSON files
 param parPolicyAssignmentParameterOverrides = {
-    // No policy assignments in platform-identity currently
+  'Deploy-VM-Backup': {
+    location: 'uaenorth'
+  }
 }

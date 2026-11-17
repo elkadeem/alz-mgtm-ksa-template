@@ -183,13 +183,15 @@ Deploy-MDEndpointsAMA, Deploy-MDFC-OssDb, Deploy-MDFC-SqlAtp.
 platform: Deploy-GuestAttest.
 landingzones: Deploy-GuestAttest, Deploy-SQL-Threat.
 
-If policy regional identity hosting remains unavailable and deferral was approved, inspect
-every remaining assigned JSON's identity.type and exclude all remaining SystemAssigned
-assignments. This includes root Deploy-SvcHealth-BuiltIn and Enforce-ACSB; do not add a
-uaenorth policy location override. Discover newly introduced identity-bearing assignments
-in newer libraries rather than hardcoding only the historical names.
-Do not exclude SQL TDE merely because of Defender; it is separately identity-deferred in
-the reference. Record every exclusion's reasons; a policy can have multiple blockers.
+For the approved alternate-region identity workaround, restore the 66 identity-only
+deferrals as DoNotEnforce and add location: 'uaenorth' to their existing per-assignment
+override objects. Include root Deploy-SvcHealth-BuiltIn and Enforce-ACSB. Do not apply a
+broad override to other assignments, alter parLocations, change workload/remediation
+parameters, or remove logging/security exclusions. Inventory live locations first:
+assignment locations cannot change in place. Obtain off-region identity placement approval.
+Discover newly introduced identity-bearing assignments in newer libraries rather than
+blindly expanding this historical scope. Do not exclude SQL TDE merely because of Defender.
+Record each remaining exclusion's reasons; a policy can have multiple blockers.
 For new unsupported identity shapes or module APIs, stop and report rather than guess.
 
 Put all remaining declared assignments into DoNotEnforce using exact name matching.
@@ -202,20 +204,23 @@ entry is a historical no-op, not a required adaptation.
 
 **Gate:** for each group, declared assignments = disjoint union of excluded and DoNotEnforce
 assignments. No missing/duplicate names or new enforced assignments. For the **same pinned
-reference baseline**, expect 123 occurrences, 30 DoNotEnforce, 93 excluded; compare the
+reference baseline**, expect 123 occurrences, 96 DoNotEnforce, 27 excluded, with exactly
+66 selected uaenorth location overrides; compare the
 [per-group matrix](saudi-arabia-east-implementation-guide.md#5-final-policy-accounting).
 A newer library may legitimately produce different totals; require an explained diff.
-This is a reduced-coverage rollout and needs explicit risk acceptance.
+This is a reduced-coverage rollout and needs explicit risk acceptance. The off-region
+identity workaround is configured but still requires operator deployment/testing; follow
+the [test procedure](policy-assignment-alternate-region.md).
 
 ## 8. Synchronize cross-management-group RBAC
 
 ```text
 Trace every existing policy-assignment identity lookup in the separate RBAC deployments.
 Exclude a lookup and its role grants when the source assignment is excluded:
-Platform RBAC: Connectivity Enable-DDoS-VNET.
-Landing Zones RBAC: Platform's seven logging-related assignments plus Connectivity
-Enable-DDoS-VNET.
-Connectivity RBAC: Corp Deploy-Private-DNS-Zones.
+Landing Zones RBAC still skips Platform's seven logging-related assignments.
+Restore Connectivity Enable-DDoS-VNET lookups/grants in Platform and Landing Zones RBAC,
+and Corp Deploy-Private-DNS-Zones in Connectivity RBAC, because their source assignments
+are restored with selected UAE North identities.
 Use parManagementGroupExcludedPolicyAssignments or the generated equivalent.
 Inspect actual source groups and any new dependencies; do not copy all policy exclusion
 lists blindly into every RBAC module. Keep stages enabled when their guards suffice.

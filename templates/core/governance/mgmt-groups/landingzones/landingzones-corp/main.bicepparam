@@ -1,7 +1,7 @@
 using './main.bicep'
 
 // General Parameters
-// SINGLE-REGION DEPLOYMENT (2026-11-16): only saudiarabiaeast is deployed to.
+// Workload region remains saudiarabiaeast; selected policy identities use uaenorth.
 param parLocations = [
   'saudiarabiaeast'
 ]
@@ -20,7 +20,7 @@ param landingZonesCorpConfig = {
   managementGroupParentId: 'landingzones'
   managementGroupIntermediateRootName: 'alz'
   managementGroupDisplayName: 'Corp'
-  // TEMP AUDIT-ONLY (2026-11-16): remaining 4 policy assignments in this MG set to DoNotEnforce
+  // TEMP AUDIT-ONLY (2026-11-17): 5 policy assignments in this MG set to DoNotEnforce
   // for the initial Saudi Arabia East rollout. Re-enforce once validated — see
   // docs/policy-audit-only-rollout.md.
   managementGroupDoNotEnforcePolicyAssignments: [
@@ -28,17 +28,9 @@ param landingZonesCorpConfig = {
     'Deny-HybridNetworking'
     'Deny-Public-Endpoints'
     'Deny-Public-IP-On-NIC'
-  ]
-  // TEMP EXCLUDED (2026-11-17): Deploy-Private-DNS-Zones uses a system-assigned managed
-  // identity, and Microsoft Entra regional resource identity hosting does not support
-  // 'saudiarabiaeast' yet, so its creation fails with IdentityServiceUnavailable. It did not
-  // exist in Azure prior to this change, so excluding it avoids a future delete/recreate
-  // migration once the region is supported — simply remove this entry once Entra confirms
-  // regional identity hosting for 'saudiarabiaeast'. See
-  // docs/policy-assignment-identity-unavailable-exclusions.md.
-  managementGroupExcludedPolicyAssignments: [
     'Deploy-Private-DNS-Zones'
   ]
+  managementGroupExcludedPolicyAssignments: []
   customerRbacRoleDefs: []
   customerRbacRoleAssignments: []
   customerPolicyDefs: []
@@ -57,6 +49,7 @@ param landingZonesCorpConfig = {
 param parPolicyAssignmentParameterOverrides = {
   // Deploy-Private-DNS-Zones Policy: Configure private DNS zones for Azure services private endpoints
   'Deploy-Private-DNS-Zones': {
+    location: 'uaenorth'
     additionalSubscriptionIDsToAssignRbacTo: ['22222222-2222-2222-2222-222222222222']
     parameters: {
       // Azure Container Registry private DNS zone

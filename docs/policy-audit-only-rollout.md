@@ -3,8 +3,9 @@
 ## Status
 
 **Temporary rollout posture** since 2026-11-16. The original rollout covered 123 declared
-assignment occurrences. After the subsequent service/identity exclusions, the final
-configuration has **30 DoNotEnforce occurrences and 93 excluded occurrences** (80 unique
+assignment occurrences. After restoring the 66 identity-only deferrals with
+[selected UAE North identities](policy-assignment-alternate-region.md), the configuration
+has **96 DoNotEnforce occurrences and 27 excluded occurrences** (80 unique
 assignment names across the 123 declarations). The historical table below describes the
 earlier rollout, not the current active count. See the
 [final policy matrix](saudi-arabia-east-implementation-guide.md#5-final-policy-accounting).
@@ -68,7 +69,8 @@ assign zero policies of their own (`alzPolicyAssignmentsJson = []` in their `mai
 only inherit policy from their parent management groups, which are already covered above.
 
 The audit-only operation itself changed only `enforcementMode`. Later decisions moved
-additional assignments to the exclusion lists; they are no longer evaluated.
+additional assignments to the exclusion lists. The 66 identity-only deferrals are now
+restored for evaluation, pending operator deployment; service-related exclusions remain.
 
 ## Interaction with the Core-Logging exclusions
 
